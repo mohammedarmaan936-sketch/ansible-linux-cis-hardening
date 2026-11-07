@@ -18,9 +18,12 @@
     path: "{{ item.path }}"
   register: audit_cred_stats
   loop:
-    - { path: "/etc/passwd", expected_mode: "0644" }
-    - { path: "/etc/shadow", expected_mode: "0640" }
-    - { path: "/etc/ssh/sshd_config", expected_mode: "0600" }
+    - path: /etc/passwd
+      expected_mode: "0644"
+    - path: /etc/shadow
+      expected_mode: "0640"
+    - path: /etc/ssh/sshd_config
+      expected_mode: "0600"
   tags:
     - audit
     - cis
@@ -34,4 +37,3 @@
   tags:
     - audit
     - cis
-

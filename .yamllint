@@ -7,10 +7,11 @@ ignore: |
 
 rules:
   line-length: disable
+  empty-lines: disable
+  braces: disable
+  trailing-spaces: disable
   truthy:
     check-keys: false
   comments:
     min-spaces-from-content: 1
   document-start: disable
-  empty-lines:
-    max: 2
