@@ -1,4 +1,4 @@
-name: CIS Ansible Security & Compliance Pipeline
+name: "CIS Ansible Security and Compliance Pipeline"
 
 on:
   push:
@@ -11,78 +11,66 @@ permissions:
   contents: read
 
 jobs:
-  # ============================================================================
-  # GATE 1 & 2: SYNTAX VALIDATION & ANSIBLE-LINT
-  # ============================================================================
   lint-and-syntax:
-    name: "Gate 1 & 2: Syntax & Ansible-Lint"
+    name: "Gate 1 and 2: Syntax and Ansible-Lint"
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Hardening Repository
+      - name: "Checkout Hardening Repository"
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: "Set up Python 3.11"
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
 
-      - name: Install Ansible & Linting Utilities
+      - name: "Install Ansible and Linting Utilities"
         run: |
           python -m pip install --upgrade pip
           pip install ansible-core ansible-lint yamllint
 
-      - name: Gate 1: Ansible Playbook Syntax Check
+      - name: "Gate 1: Ansible Playbook Syntax Check"
         run: |
-          echo "::group::Validating site.yml syntax..."
+          echo "Validating site.yml syntax..."
           ansible-playbook site.yml -i inventory/hosts.ini --syntax-check
-          echo "::endgroup::"
 
-      - name: Gate 2: YAML & Ansible-Lint Security Check
+      - name: "Gate 2: YAML and Ansible-Lint Security Check"
         run: |
-          echo "::group::Running yamllint & ansible-lint..."
+          echo "Running yamllint..."
           yamllint -d relaxed .
+          echo "Running ansible-lint..."
           ansible-lint site.yml --exclude-paths .github/
-          echo "::endgroup::"
 
-  # ============================================================================
-  # GATE 3: CIS BENCHMARK COMPLIANCE AUDIT GATE
-  # ============================================================================
   cis-compliance-gate:
     name: "Gate 3: CIS Benchmark Compliance Gate"
     runs-on: ubuntu-latest
     needs: [lint-and-syntax]
     steps:
-      - name: Checkout Hardening Repository
+      - name: "Checkout Hardening Repository"
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: "Set up Python 3.11"
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Gate 3: Execute CIS Level 1 Audit Scanner
+      - name: "Gate 3: Execute CIS Level 1 Audit Scanner"
         run: |
-          echo "::group::Running CIS Level 1 Automated Audit Scanner..."
+          echo "Running CIS Level 1 Automated Audit Scanner..."
           python3 scripts/cis_compliance_audit.py --format table
-          echo "::endgroup::"
 
-      - name: Export CIS Compliance JSON Artifact
+      - name: "Export CIS Compliance JSON Artifact"
         if: always()
         run: |
           python3 scripts/cis_compliance_audit.py --format json > cis-compliance-report.json
           cat cis-compliance-report.json
 
-      - name: Upload Compliance Artifact
+      - name: "Upload Compliance Artifact"
         uses: actions/upload-artifact@v4
         with:
           name: cis-compliance-report
           path: cis-compliance-report.json
           retention-days: 14
 
-  # ============================================================================
-  # GATE 4: CONTAINER DRY-RUN VERIFICATION (Ubuntu 22.04 & 24.04)
-  # ============================================================================
   container-dryrun:
     name: "Gate 4: Container Dry-Run Verification"
     runs-on: ubuntu-latest
@@ -91,21 +79,13 @@ jobs:
       matrix:
         ubuntu_tag: ["22.04", "24.04"]
     steps:
-      - name: Checkout Hardening Repository
+      - name: "Checkout Hardening Repository"
         uses: actions/checkout@v4
 
-      - name: Run Playbook Dry-Run in Ubuntu ${{ matrix.ubuntu_tag }} Container
+      - name: "Run Playbook Dry-Run in Ubuntu Container"
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/ansible-hardening \
             -w /ansible-hardening \
             ubuntu:${{ matrix.ubuntu_tag }} \
-            bash -c "
-              set -e
-              apt-get update -qq
-              DEBIAN_FRONTEND=noninteractive apt-get install -y -qq software-properties-common python3 python3-pip sudo
-              pip3 install ansible-core --break-system-packages 2>/dev/null || pip3 install ansible-core
-              echo 'Running ansible-playbook in dry-run mode (--check --diff)...'
-              ansible-playbook site.yml -i 'localhost,' -c local --check --diff
-            "
-
+            bash -c "apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq software-properties-common python3 python3-pip sudo && (pip3 install ansible-core --break-system-packages 2>/dev/null || pip3 install ansible-core) && ansible-playbook site.yml -i 'localhost,' -c local --check --diff"
