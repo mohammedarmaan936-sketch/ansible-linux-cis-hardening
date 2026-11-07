@@ -33,3 +33,4 @@ We will acknowledge receipt within 48 hours and coordinate a coordinated disclos
 Security controls in this repository conform to the official benchmark published by the **Center for Internet Security (CIS)**:
 - *CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0*
 - *CIS Ubuntu Linux 24.04 LTS Benchmark v1.0.0*
+

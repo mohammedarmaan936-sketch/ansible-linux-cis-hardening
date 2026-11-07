@@ -47,3 +47,4 @@ When adding a new benchmark control:
 - **Fail-Safe Service Reloads**: Never restart services directly in tasks; always notify handlers.
 - **Scoping**: All role variables must follow the `cis_` naming convention.
 - **Python**: Scanner code in `scripts/` must strictly use the Python 3 standard library with zero external dependencies.
+
