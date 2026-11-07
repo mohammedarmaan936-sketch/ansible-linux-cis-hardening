@@ -88,4 +88,4 @@ jobs:
             -v ${{ github.workspace }}:/ansible-hardening \
             -w /ansible-hardening \
             ubuntu:${{ matrix.ubuntu_tag }} \
-            bash -c "apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq software-properties-common python3 python3-pip sudo && (pip3 install ansible-core --break-system-packages 2>/dev/null || pip3 install ansible-core) && ansible-playbook site.yml -i 'localhost,' -c local --check --diff"
+            bash -c "apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq software-properties-common python3 python3-pip sudo && (pip3 install ansible-core --break-system-packages 2>/dev/null || pip3 install ansible-core) && ansible-galaxy collection install -r requirements.yml && ansible-playbook site.yml -i 'localhost,' -c local --check --diff"
