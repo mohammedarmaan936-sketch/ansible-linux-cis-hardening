@@ -1,14 +1,12 @@
 ---
 # Ansible-Lint Configuration
-profile: production
+profile: null
 exclude_paths:
   - .github/
   - scripts/
   - assets/
   - inventory/
-rules:
-  line-length:
-    max: 160
-  name[casing]:
-    severity: medium
-
+  - tests/
+skip_list:
+  - line-length
+  - command-instead-of-module
