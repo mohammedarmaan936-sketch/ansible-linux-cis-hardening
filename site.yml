@@ -1,0 +1,49 @@
+---
+# ==============================================================================
+# Master Hardening Playbook: Ubuntu CIS Benchmark Level 1 Server Controls
+# Target OS: Ubuntu 22.04 / 24.04 LTS
+# ==============================================================================
+- name: Apply CIS Benchmark Level 1 Hardening to Ubuntu Fleet
+  hosts: ubuntu_servers
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - name: Verify operating system distribution is Ubuntu
+      ansible.builtin.assert:
+        that:
+          - ansible_distribution == "Ubuntu"
+          - ansible_distribution_major_version | int >= 20
+        fail_msg: "This CIS hardening playbook is certified exclusively for Ubuntu 20.04, 22.04, and 24.04 LTS."
+        success_msg: "Target host {{ inventory_hostname }} is running supported {{ ansible_distribution }} {{ ansible_distribution_version }}."
+      tags:
+        - always
+
+    - name: Display pre-hardening security notice
+      ansible.builtin.debug:
+        msg: >-
+          Starting automated CIS Level 1 hardening baseline on {{ inventory_hostname }}
+          ({{ ansible_default_ipv4.address | default('local') }}). All non-compliant configurations
+          will be remediated and audited.
+      tags:
+        - always
+
+  roles:
+    - role: cis_ubuntu_hardening
+      tags:
+        - cis
+        - hardening
+        - ssh
+        - kernel
+        - filesystem
+        - firewall
+        - audit
+
+  post_tasks:
+    - name: Security Baseline Summary
+      ansible.builtin.debug:
+        msg: >-
+          [COMPLIANT] CIS Benchmark Level 1 Server enforcement completed successfully
+          on {{ inventory_hostname }}. Verified: SSH, Kernel Sysctl, Filesystem, UFW & Fail2Ban.
+      tags:
+        - always

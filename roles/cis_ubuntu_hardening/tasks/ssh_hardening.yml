@@ -1,0 +1,48 @@
+---
+# ==============================================================================
+# CIS Benchmark - Section 5.2: OpenSSH Server Hardening
+# ==============================================================================
+
+- name: Deploy CIS compliant login banner to /etc/issue.net
+  ansible.builtin.copy:
+    dest: /etc/issue.net
+    content: "{{ cis_issue_net_content }}"
+    owner: root
+    group: root
+    mode: "0644"
+  tags:
+    - ssh
+    - cis
+
+- name: Deploy hardened OpenSSH daemon configuration
+  ansible.builtin.template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: "0600"
+    validate: "/usr/sbin/sshd -t -f %s"
+  notify: restart sshd
+  tags:
+    - ssh
+    - cis
+
+- name: Ensure OpenSSH service is enabled and active
+  ansible.builtin.service:
+    name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
+    state: started
+    enabled: true
+  tags:
+    - ssh
+    - cis
+
+- name: Verify SSH configuration directives (CIS 5.2 Controls)
+  ansible.builtin.command:
+    cmd: >-
+      grep -E "^(PermitRootLogin|PasswordAuthentication|MaxAuthTries|ClientAliveInterval|X11Forwarding)" /etc/ssh/sshd_config
+  register: sshd_cis_check
+  changed_when: false
+  failed_when: false
+  tags:
+    - ssh
+    - audit

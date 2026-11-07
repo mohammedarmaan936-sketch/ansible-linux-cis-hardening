@@ -1,0 +1,88 @@
+# ==============================================================================
+# Hardened OpenSSH Daemon Configuration (/etc/ssh/sshd_config)
+# Benchmark Reference: CIS Ubuntu Linux Benchmark Level 1 Server
+# Managed by Ansible: cis_ubuntu_hardening role. DO NOT EDIT DIRECTLY.
+# ==============================================================================
+
+# Network & Listener Settings
+Port {{ cis_ssh_port }}
+AddressFamily any
+ListenAddress 0.0.0.0
+
+# Host Keys
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+
+# Cryptographic Suite
+Ciphers {{ cis_ssh_ciphers | join(',') }}
+MACs {{ cis_ssh_macs | join(',') }}
+KexAlgorithms {{ cis_ssh_kex_algorithms | join(',') }}
+
+# Logging & Audit (CIS 5.2.3)
+SyslogFacility AUTH
+LogLevel {{ cis_ssh_loglevel }}
+
+# Authentication & Access Controls
+LoginGraceTime {{ cis_ssh_login_grace_time }}
+StrictModes yes
+
+### CIS 5.2.4 - Ensure SSH PermitRootLogin is disabled
+PermitRootLogin {{ cis_ssh_permit_root_login }}
+
+### CIS 5.2.5 - Ensure SSH MaxAuthTries is set to 4 or less
+MaxAuthTries {{ cis_ssh_max_auth_tries }}
+MaxSessions 4
+
+### CIS 5.2.8 - Ensure SSH IgnoreRhosts is enabled
+IgnoreRhosts {{ cis_ssh_ignore_rhosts }}
+
+### CIS 5.2.9 - Ensure SSH HostbasedAuthentication is disabled
+HostbasedAuthentication {{ cis_ssh_hostbased_authentication }}
+
+### CIS 5.2.10 - Ensure SSH PermitEmptyPasswords is disabled
+PermitEmptyPasswords {{ cis_ssh_permit_empty_passwords }}
+
+### CIS 5.2.11 - Ensure SSH PasswordAuthentication is disabled
+PasswordAuthentication {{ cis_ssh_password_authentication }}
+PubkeyAuthentication yes
+KbdInteractiveAuthentication no
+
+### CIS 5.2.12 - Ensure SSH PermitUserEnvironment is disabled
+PermitUserEnvironment {{ cis_ssh_permit_user_environment }}
+
+# Forwarding & Shell Restrictions
+### CIS 5.2.6 - Ensure SSH X11Forwarding is disabled
+X11Forwarding {{ cis_ssh_x11_forwarding }}
+
+### CIS 5.2.7 - Ensure SSH AllowTcpForwarding is disabled
+AllowTcpForwarding {{ cis_ssh_allow_tcp_forwarding }}
+
+# Session Timeouts & KeepAlive
+### CIS 5.2.15 - Ensure SSH ClientAliveInterval is configured
+ClientAliveInterval {{ cis_ssh_client_alive_interval }}
+
+### CIS 5.2.16 - Ensure SSH ClientAliveCountMax is configured
+ClientAliveCountMax {{ cis_ssh_client_alive_count_max }}
+
+### CIS 5.2.17 - Ensure SSH MaxStartups is configured
+MaxStartups {{ cis_ssh_max_startups }}
+
+# Banner & Compliance Warning (CIS 5.2.18)
+Banner {{ cis_ssh_banner }}
+
+# Pluggable Authentication Modules (PAM) (CIS 5.2.19)
+UsePAM {{ cis_ssh_use_pam }}
+
+PrintMotd no
+PrintLastLog yes
+TCPKeepAlive yes
+AcceptEnv LANG LC_*
+
+# Subsystem definition
+Subsystem sftp /usr/lib/openssh/sftp-server -f AUTHPRIV -l INFO
+
+{% if cis_ssh_allowed_users | length > 0 %}
+# CIS Access Control - Whitelist explicit permitted users
+AllowUsers {{ cis_ssh_allowed_users | join(' ') }}
+{% endif %}

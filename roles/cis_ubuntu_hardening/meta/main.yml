@@ -1,0 +1,22 @@
+---
+galaxy_info:
+  author: CloudPulse SecOps
+  description: CIS Benchmark Level 1 Server Hardening for Ubuntu 22.04 and 24.04 LTS
+  company: CloudPulse
+  license: MIT
+  min_ansible_version: "2.12"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - "jammy"
+        - "noble"
+        - "22.04"
+        - "24.04"
+  galaxy_tags:
+    - security
+    - hardening
+    - cis
+    - ubuntu
+    - compliance
+    - devsecops
+dependencies: []

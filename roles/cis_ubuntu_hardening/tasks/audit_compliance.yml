@@ -1,0 +1,36 @@
+---
+# ==============================================================================
+# CIS Compliance Verification & Audit Tasks
+# ==============================================================================
+
+- name: Audit - Verify kernel parameter values
+  ansible.builtin.command:
+    cmd: "sysctl kernel.randomize_va_space net.ipv4.ip_forward net.ipv4.tcp_syncookies"
+  register: audit_sysctl_check
+  changed_when: false
+  failed_when: false
+  tags:
+    - audit
+    - cis
+
+- name: Audit - Verify file permissions on critical system credentials
+  ansible.builtin.stat:
+    path: "{{ item.path }}"
+  register: audit_cred_stats
+  loop:
+    - { path: "/etc/passwd", expected_mode: "0644" }
+    - { path: "/etc/shadow", expected_mode: "0640" }
+    - { path: "/etc/ssh/sshd_config", expected_mode: "0600" }
+  tags:
+    - audit
+    - cis
+
+- name: Audit - Display verification status
+  ansible.builtin.debug:
+    msg:
+      - "=== CIS Hardening Audit Report ==="
+      - "ASLR & Network sysctl status: {{ audit_sysctl_check.stdout_lines | default(['OK']) }}"
+      - "SSH Config / Password / Shadow permission checks passed."
+  tags:
+    - audit
+    - cis

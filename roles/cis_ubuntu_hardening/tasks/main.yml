@@ -1,0 +1,35 @@
+---
+# ==============================================================================
+# CIS Ubuntu Hardening Role - Master Task Dispatcher
+# Reference: CIS Ubuntu Linux Benchmark Level 1 Server
+# ==============================================================================
+
+- name: Enforce Filesystem & Credential Permissions
+  ansible.builtin.import_tasks: filesystem_access.yml
+  tags:
+    - filesystem
+    - cis
+
+- name: Enforce Kernel Sysctl & Network Parameters
+  ansible.builtin.import_tasks: kernel_network.yml
+  tags:
+    - kernel
+    - cis
+
+- name: Enforce Host Firewall & Fail2Ban
+  ansible.builtin.import_tasks: firewall_fail2ban.yml
+  tags:
+    - firewall
+    - cis
+
+- name: Enforce OpenSSH Server Hardening
+  ansible.builtin.import_tasks: ssh_hardening.yml
+  tags:
+    - ssh
+    - cis
+
+- name: Run CIS Hardening Audit Verification
+  ansible.builtin.import_tasks: audit_compliance.yml
+  tags:
+    - audit
+    - cis

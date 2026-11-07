@@ -1,0 +1,8 @@
+*.retry
+*.pyc
+__pycache__/
+.cache/
+.ansible/
+cis-compliance-report.json
+.DS_Store
+Thumbs.db

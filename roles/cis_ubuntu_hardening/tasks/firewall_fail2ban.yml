@@ -1,0 +1,128 @@
+---
+# ==============================================================================
+# CIS Benchmark - Section 3.5: UFW Firewall & Fail2Ban Intrusion Prevention
+# ==============================================================================
+
+- name: Install UFW and Fail2Ban security packages
+  ansible.builtin.apt:
+    name:
+      - ufw
+      - fail2ban
+    state: present
+    update_cache: false
+  when: cis_ufw_manage | bool
+  tags:
+    - firewall
+    - cis
+
+# ------------------------------------------------------------------------------
+# UFW Firewall Baseline Configuration (CIS 3.5.1.x)
+# ------------------------------------------------------------------------------
+- name: Set UFW default incoming policy to DENY (CIS 3.5.1.3)
+  ansible.builtin.command:
+    cmd: "ufw default {{ cis_ufw_default_incoming_policy }} incoming"
+  changed_when: false
+  when: cis_ufw_manage | bool
+  tags:
+    - firewall
+    - cis
+
+- name: Set UFW default outgoing policy to ALLOW
+  ansible.builtin.command:
+    cmd: "ufw default {{ cis_ufw_default_outgoing_policy }} outgoing"
+  changed_when: false
+  when: cis_ufw_manage | bool
+  tags:
+    - firewall
+    - cis
+
+- name: Set UFW default routed policy to DENY
+  ansible.builtin.command:
+    cmd: "ufw default {{ cis_ufw_default_routed_policy }} routed"
+  changed_when: false
+  when: cis_ufw_manage | bool
+  tags:
+    - firewall
+    - cis
+
+- name: Allow SSH management port through UFW firewall
+  ansible.builtin.command:
+    cmd: "ufw allow {{ cis_ssh_port }}/tcp comment 'CIS Hardening SSH Access'"
+  changed_when: false
+  when: cis_ufw_manage | bool
+  tags:
+    - firewall
+    - cis
+
+- name: Allow defined custom ingress ports through UFW
+  ansible.builtin.command:
+    cmd: "ufw allow {{ item }}/tcp comment 'CIS Approved Service Port'"
+  loop: "{{ cis_ufw_allowed_ports }}"
+  changed_when: false
+  when:
+    - cis_ufw_manage | bool
+    - item != cis_ssh_port
+  tags:
+    - firewall
+    - cis
+
+- name: Enable UFW firewall service (CIS 3.5.1.1)
+  ansible.builtin.command:
+    cmd: "ufw --force enable"
+  changed_when: false
+  when: cis_ufw_manage | bool
+  tags:
+    - firewall
+    - cis
+
+- name: Ensure UFW system service is enabled and started
+  ansible.builtin.service:
+    name: ufw
+    state: started
+    enabled: true
+  when: cis_ufw_manage | bool
+  tags:
+    - firewall
+    - cis
+
+# ------------------------------------------------------------------------------
+# Fail2Ban Host Intrusion Prevention Configuration
+# ------------------------------------------------------------------------------
+- name: Deploy hardened Fail2Ban jail configuration
+  ansible.builtin.copy:
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      # Fail2Ban Production Hardening Configuration
+      # Managed by Ansible: cis_ubuntu_hardening role
+
+      [DEFAULT]
+      bantime  = {{ cis_fail2ban_bantime }}
+      findtime = {{ cis_fail2ban_findtime }}
+      maxretry = {{ cis_fail2ban_maxretry }}
+      backend  = auto
+      banaction = ufw
+
+      [sshd]
+      enabled  = true
+      port     = {{ cis_ssh_port }}
+      logpath  = %(sshd_log)s
+      maxretry = {{ cis_fail2ban_maxretry }}
+      bantime  = {{ cis_fail2ban_bantime }}
+  notify: restart fail2ban
+  when: cis_fail2ban_enabled | bool
+  tags:
+    - firewall
+    - cis
+
+- name: Ensure Fail2Ban service is enabled and started
+  ansible.builtin.service:
+    name: fail2ban
+    state: started
+    enabled: true
+  when: cis_fail2ban_enabled | bool
+  tags:
+    - firewall
+    - cis

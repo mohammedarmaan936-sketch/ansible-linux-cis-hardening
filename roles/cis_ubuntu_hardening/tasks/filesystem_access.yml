@@ -1,0 +1,83 @@
+---
+# ==============================================================================
+# CIS Benchmark - Section 1.1, 5.4, 6.1: Filesystem, Permissions & Passwords
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# CIS 1.1.1.x: Disable Unused Legacy & Removable Filesystems
+# ------------------------------------------------------------------------------
+- name: Create modprobe configuration to disable unused filesystems
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/cis_filesystems.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      # CIS Benchmark Unused Filesystems Lockdown
+      # Managed by Ansible: cis_ubuntu_hardening role
+      {% for fs in cis_disabled_filesystems %}
+      install {{ fs }} /bin/true
+      blacklist {{ fs }}
+      {% endfor %}
+  tags:
+    - filesystem
+    - cis
+
+# ------------------------------------------------------------------------------
+# CIS 6.1.x & 5.2.1: Critical File Permissions & Ownership
+# ------------------------------------------------------------------------------
+- name: Enforce restrictive permissions on system credential files
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+    state: file
+  loop: "{{ cis_file_permissions }}"
+  failed_when: false
+  tags:
+    - filesystem
+    - cis
+
+# ------------------------------------------------------------------------------
+# CIS 5.4.1.x: Enforce Password Aging Policies in /etc/login.defs
+# ------------------------------------------------------------------------------
+- name: Configure PASS_MAX_DAYS in /etc/login.defs (CIS 5.4.1.1)
+  ansible.builtin.lineinfile:
+    path: /etc/login.defs
+    regexp: '^#?PASS_MAX_DAYS'
+    line: "PASS_MAX_DAYS   {{ cis_pass_max_days }}"
+    state: present
+  tags:
+    - filesystem
+    - cis
+
+- name: Configure PASS_MIN_DAYS in /etc/login.defs (CIS 5.4.1.2)
+  ansible.builtin.lineinfile:
+    path: /etc/login.defs
+    regexp: '^#?PASS_MIN_DAYS'
+    line: "PASS_MIN_DAYS   {{ cis_pass_min_days }}"
+    state: present
+  tags:
+    - filesystem
+    - cis
+
+- name: Configure PASS_WARN_AGE in /etc/login.defs (CIS 5.4.1.3)
+  ansible.builtin.lineinfile:
+    path: /etc/login.defs
+    regexp: '^#?PASS_WARN_AGE'
+    line: "PASS_WARN_AGE   {{ cis_pass_warn_age }}"
+    state: present
+  tags:
+    - filesystem
+    - cis
+
+- name: Configure default UMASK in /etc/login.defs (CIS 5.4.4)
+  ansible.builtin.lineinfile:
+    path: /etc/login.defs
+    regexp: '^#?UMASK'
+    line: "UMASK           {{ cis_umask }}"
+    state: present
+  tags:
+    - filesystem
+    - cis
