@@ -132,8 +132,16 @@ ansible-linux-cis-hardening/
 # Validate playbook syntax
 ansible-playbook site.yml --syntax-check
 
-# Execute CIS Level 1 Compliance & Drift Scanner
+# Execute static CIS Level 1 compliance audit (IaC repository analysis)
 python3 scripts/cis_compliance_audit.py
+
+# Execute live system compliance audit on an active Ubuntu instance
+python3 scripts/cis_compliance_audit.py --live
+
+# Export compliance reports in Markdown, HTML, or JSON format
+python3 scripts/cis_compliance_audit.py --format markdown > cis-report.md
+python3 scripts/cis_compliance_audit.py --format html > cis-report.html
+python3 scripts/cis_compliance_audit.py --format json > cis-report.json
 ```
 
 #### Compliance Scanner Terminal Output:
