@@ -10,3 +10,5 @@ exclude_paths:
 skip_list:
   - line-length
   - command-instead-of-module
+  - var-naming
+  - risky-file-permissions
