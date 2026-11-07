@@ -28,8 +28,15 @@
     - ssh
     - cis
 
+- name: Enforce System Accounting with auditd
+  ansible.builtin.import_tasks: audit_logging.yml
+  tags:
+    - audit
+    - cis
+
 - name: Run CIS Hardening Audit Verification
   ansible.builtin.import_tasks: audit_compliance.yml
   tags:
     - audit
     - cis
+

@@ -235,3 +235,4 @@ This repository represents the **Host Infrastructure Hardening Tier** within the
 ## License & Attribution
 
 Distributed under the **MIT License**. Benchmark definitions derived from the *CIS Ubuntu Linux 22.04 LTS and 24.04 LTS Benchmark v1.0.0* published by the Center for Internet Security (CIS).
+

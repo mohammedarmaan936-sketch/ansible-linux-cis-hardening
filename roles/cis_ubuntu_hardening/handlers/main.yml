@@ -27,3 +27,9 @@
     name: fail2ban
     state: restarted
   listen: "restart fail2ban"
+
+- name: Restart auditd
+  ansible.builtin.service:
+    name: auditd
+    state: restarted
+  listen: "restart auditd"

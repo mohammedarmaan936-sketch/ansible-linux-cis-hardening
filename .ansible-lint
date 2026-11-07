@@ -11,3 +11,4 @@ rules:
     max: 160
   name[casing]:
     severity: medium
+

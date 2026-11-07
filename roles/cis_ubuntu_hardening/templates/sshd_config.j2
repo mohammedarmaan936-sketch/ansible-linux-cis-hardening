@@ -86,3 +86,4 @@ Subsystem sftp /usr/lib/openssh/sftp-server -f AUTHPRIV -l INFO
 # CIS Access Control - Whitelist explicit permitted users
 AllowUsers {{ cis_ssh_allowed_users | join(' ') }}
 {% endif %}
+

@@ -1,0 +1,68 @@
+---
+# ==============================================================================
+# CIS Benchmark - Section 4.1: Configure System Accounting (auditd)
+# ==============================================================================
+
+- name: Install auditd daemon and utilities
+  ansible.builtin.apt:
+    name:
+      - auditd
+      - audispd-plugins
+    state: present
+    update_cache: false
+  tags:
+    - audit
+    - cis
+
+- name: Configure CIS audit rules in /etc/audit/rules.d/50-cis-hardening.rules
+  ansible.builtin.copy:
+    dest: /etc/audit/rules.d/50-cis-hardening.rules
+    owner: root
+    group: root
+    mode: "0640"
+    content: |
+      # CIS Benchmark Audit Rules
+      # Managed by Ansible: cis_ubuntu_hardening role
+
+      # CIS 4.1.4 - Record events that modify date and time information
+      -a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change
+      -a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+      -a always,exit -F arch=b64 -S clock_settime -k time-change
+      -a always,exit -F arch=b32 -S clock_settime -k time-change
+      -w /etc/localtime -p wa -k time-change
+
+      # CIS 4.1.5 - Record events that modify user/group information
+      -w /etc/group -p wa -k identity
+      -w /etc/passwd -p wa -k identity
+      -w /etc/gshadow -p wa -k identity
+      -w /etc/shadow -p wa -k identity
+      -w /etc/security/opasswd -p wa -k identity
+
+      # CIS 4.1.6 - Record events that modify system network environment
+      -a always,exit -F arch=b64 -S sethostname -S setdomainname -k system-locale
+      -a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale
+      -w /etc/issue -p wa -k system-locale
+      -w /etc/issue.net -p wa -k system-locale
+      -w /etc/hosts -p wa -k system-locale
+      -w /etc/network -p wa -k system-locale
+
+      # CIS 4.1.7 - Record events that modify system mandatory access controls
+      -w /etc/apparmor/ -p wa -k MAC-policy
+      -w /etc/apparmor.d/ -p wa -k MAC-policy
+
+      # CIS 4.1.13 - Record changes to sudoers configuration
+      -w /etc/sudoers -p wa -k actions
+      -w /etc/sudoers.d/ -p wa -k actions
+  notify: restart auditd
+  tags:
+    - audit
+    - cis
+
+- name: Ensure auditd service is enabled and started
+  ansible.builtin.service:
+    name: auditd
+    state: started
+    enabled: true
+  tags:
+    - audit
+    - cis

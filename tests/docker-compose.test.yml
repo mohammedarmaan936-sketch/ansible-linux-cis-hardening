@@ -1,0 +1,21 @@
+services:
+  ubuntu-hardening-test:
+    image: ubuntu:22.04
+    container_name: cis-hardening-ubuntu-test
+    working_dir: /ansible-hardening
+    volumes:
+      - ..:/ansible-hardening
+    command: >
+      bash -c "
+        set -e
+        apt-get update -qq
+        DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3 python3-pip sudo ufw fail2ban
+        pip3 install ansible-core --break-system-packages 2>/dev/null || pip3 install ansible-core
+        echo '=== Step 1: Validating Ansible Playbook Syntax ==='
+        ansible-playbook site.yml -i 'localhost,' -c local --syntax-check
+        echo '=== Step 2: Executing Playbook Dry-Run (Diff Mode) ==='
+        ansible-playbook site.yml -i 'localhost,' -c local --check --diff
+        echo '=== Step 3: Running CIS Level 1 Compliance Scanner ==='
+        python3 scripts/cis_compliance_audit.py --format table
+        echo '=== Test Run Completed Successfully ==='
+      "

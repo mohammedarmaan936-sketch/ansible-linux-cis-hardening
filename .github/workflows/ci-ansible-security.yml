@@ -108,3 +108,4 @@ jobs:
               echo 'Running ansible-playbook in dry-run mode (--check --diff)...'
               ansible-playbook site.yml -i 'localhost,' -c local --check --diff
             "
+

@@ -47,3 +47,4 @@
           on {{ inventory_hostname }}. Verified: SSH, Kernel Sysctl, Filesystem, UFW & Fail2Ban.
       tags:
         - always
+
