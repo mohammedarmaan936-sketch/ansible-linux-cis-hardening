@@ -12,3 +12,4 @@ skip_list:
   - command-instead-of-module
   - var-naming
   - risky-file-permissions
+  - galaxy

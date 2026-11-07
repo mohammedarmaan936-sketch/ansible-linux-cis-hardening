@@ -8,10 +8,7 @@ galaxy_info:
   platforms:
     - name: Ubuntu
       versions:
-        - "jammy"
-        - "noble"
-        - "22.04"
-        - "24.04"
+        - all
   galaxy_tags:
     - security
     - hardening
@@ -20,4 +17,3 @@ galaxy_info:
     - compliance
     - devsecops
 dependencies: []
-
