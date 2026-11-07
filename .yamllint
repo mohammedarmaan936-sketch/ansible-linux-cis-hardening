@@ -1,13 +1,16 @@
 ---
 extends: default
 
+ignore: |
+  .github/
+  tests/
+
 rules:
-  line-length:
-    max: 160
-    level: warning
+  line-length: disable
   truthy:
     check-keys: false
   comments:
     min-spaces-from-content: 1
   document-start: disable
-
+  empty-lines:
+    max: 2

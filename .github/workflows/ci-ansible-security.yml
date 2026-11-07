@@ -36,9 +36,9 @@ jobs:
       - name: "Gate 2: YAML and Ansible-Lint Security Check"
         run: |
           echo "Running yamllint..."
-          yamllint -d relaxed .
+          yamllint .
           echo "Running ansible-lint..."
-          ansible-lint site.yml --exclude-paths .github/
+          ansible-lint site.yml
 
   cis-compliance-gate:
     name: "Gate 3: CIS Benchmark Compliance Gate"
