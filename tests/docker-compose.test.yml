@@ -19,3 +19,4 @@ services:
         python3 scripts/cis_compliance_audit.py --format table
         echo '=== Test Run Completed Successfully ==='
       "
+

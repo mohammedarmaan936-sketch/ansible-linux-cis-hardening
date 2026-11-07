@@ -60,3 +60,4 @@ docker-test:
 		pip3 install ansible-core --break-system-packages 2>/dev/null || pip3 install ansible-core && \
 		ansible-playbook site.yml -i 'localhost,' -c local --check --diff && \
 		python3 scripts/cis_compliance_audit.py"
+

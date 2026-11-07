@@ -491,6 +491,90 @@ class CISComplianceAuditor:
         }
 
 
+def render_markdown(results: List[Dict[str, Any]], score: float, live_mode: bool) -> str:
+    """Render a GitHub-flavored Markdown table for CI step summaries or PR comments."""
+    mode_str = "Live Host Audit" if live_mode else "Static Code Analysis (IaC)"
+    status_badge = "✅ **COMPLIANT (100.0%)**" if score == 100.0 else f"❌ **NON-COMPLIANT ({score:.1f}%)**"
+
+    lines = [
+        f"### CIS Ubuntu Linux Benchmark Level 1 Server — Compliance Report",
+        f"",
+        f"- **Audit Mode**: `{mode_str}`",
+        f"- **Compliance Status**: {status_badge}",
+        f"- **Score**: `{score:.1f}%` ({sum(1 for r in results if r['passed'])}/{len(results)} Controls Passed)",
+        f"",
+        f"| CIS Control ID | Category | Description | Enforced State | Status |",
+        f"| :--- | :--- | :--- | :--- | :---: |",
+    ]
+    for r in results:
+        status_icon = "PASS :white_check_mark:" if r["passed"] else "FAIL :x:"
+        lines.append(f"| **{r['id']}** | {r['category']} | {r['title']} | `{r['actual']}` | {status_icon} |")
+
+    lines.append("")
+    return "\n".join(lines)
+
+
+def render_html(results: List[Dict[str, Any]], score: float, live_mode: bool) -> str:
+    """Render a standalone dark-mode HTML report card."""
+    mode_str = "Live Host Audit" if live_mode else "Static Code Analysis (IaC)"
+    score_color = "#10b981" if score == 100.0 else "#ef4444"
+
+    rows = []
+    for r in results:
+        badge_bg = "#064e3b" if r["passed"] else "#7f1d1d"
+        badge_color = "#6ee7b7" if r["passed"] else "#fca5a5"
+        badge_text = "PASS" if r["passed"] else "FAIL"
+        rows.append(f"""
+        <tr style="border-bottom: 1px solid #1f2937;">
+          <td style="padding: 10px 14px; font-weight: 700; font-family: monospace;">{r['id']}</td>
+          <td style="padding: 10px 14px; color: #9ca3af;">{r['category']}</td>
+          <td style="padding: 10px 14px;">{r['title']}</td>
+          <td style="padding: 10px 14px; font-family: monospace; color: #38bdf8;">{r['actual']}</td>
+          <td style="padding: 10px 14px; text-align: center;">
+            <span style="background: {badge_bg}; color: {badge_color}; padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700;">{badge_text}</span>
+          </td>
+        </tr>
+        """)
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>CIS Level 1 Server Compliance Report</title>
+</head>
+<body style="background: #0b0f19; color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 30px;">
+  <div style="max-width: 1000px; margin: 0 auto; background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 24px;">
+    <h2 style="margin: 0 0 8px 0; color: #ffffff;">CIS Level 1 Server Audit Report</h2>
+    <p style="color: #9ca3af; margin: 0 0 20px 0;">Mode: {mode_str} | Standard: CIS Ubuntu Linux Benchmark</p>
+    <div style="display: flex; gap: 20px; margin-bottom: 24px;">
+      <div style="background: #1f2937; padding: 14px 20px; border-radius: 8px;">
+        <div style="font-size: 12px; color: #9ca3af;">COMPLIANCE SCORE</div>
+        <div style="font-size: 26px; font-weight: 800; color: {score_color};">{score:.1f}%</div>
+      </div>
+      <div style="background: #1f2937; padding: 14px 20px; border-radius: 8px;">
+        <div style="font-size: 12px; color: #9ca3af;">CONTROLS VERIFIED</div>
+        <div style="font-size: 26px; font-weight: 800; color: #38bdf8;">{sum(1 for r in results if r['passed'])} / {len(results)}</div>
+      </div>
+    </div>
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+      <thead>
+        <tr style="border-bottom: 2px solid #374151; color: #9ca3af;">
+          <th style="padding: 10px 14px;">CIS ID</th>
+          <th style="padding: 10px 14px;">Category</th>
+          <th style="padding: 10px 14px;">Description</th>
+          <th style="padding: 10px 14px;">Enforced Value</th>
+          <th style="padding: 10px 14px; text-align: center;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {"".join(rows)}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>"""
+
+
 def print_table(results: List[Dict[str, Any]], score: float, live_mode: bool) -> None:
     """Render a terminal table with color-coded PASS/FAIL indicators."""
     total = len(results)
@@ -553,7 +637,7 @@ def main():
     )
     parser.add_argument(
         "--format",
-        choices=["table", "json", "summary"],
+        choices=["table", "json", "summary", "markdown", "html"],
         default="table",
         help="Output presentation format (default: table)"
     )
@@ -592,6 +676,10 @@ def main():
             "controls": results
         }
         print(json.dumps(output, indent=2))
+    elif args.format == "markdown":
+        print(render_markdown(results, score, live_mode=args.live))
+    elif args.format == "html":
+        print(render_html(results, score, live_mode=args.live))
     elif args.format == "summary":
         status_msg = "COMPLIANT" if score == 100.0 else "NON_COMPLIANT"
         mode_str = "Live" if args.live else "Static"

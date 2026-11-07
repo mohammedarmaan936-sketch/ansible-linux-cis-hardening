@@ -5,11 +5,12 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/mohammedarmaan936-sketch/ansible-linux-cis-hardening/actions/workflows/ci-ansible-security.yml"><img src="https://github.com/mohammedarmaan936-sketch/ansible-linux-cis-hardening/actions/workflows/ci-ansible-security.yml/badge.svg" alt="CI/CD Status"></a>
   <a href="https://github.com/ansible/ansible"><img src="https://img.shields.io/badge/Ansible-Core_2.12+-EE0000?style=for-the-badge&logo=ansible&logoColor=white" alt="Ansible"></a>
   <a href="https://ubuntu.com/"><img src="https://img.shields.io/badge/Target_OS-Ubuntu_22.04_%7C_24.04_LTS-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" alt="Ubuntu"></a>
   <a href="https://www.cisecurity.org/benchmark/ubuntu_linux"><img src="https://img.shields.io/badge/CIS_Benchmark-Level_1_Server-10B981?style=for-the-badge&logo=securityscorecard&logoColor=white" alt="CIS Level 1"></a>
-  <a href="https://github.com"><img src="https://img.shields.io/badge/Compliance_Gate-100%25_Passing-00F2FE?style=for-the-badge&logo=githubactions&logoColor=black" alt="CI Gate"></a>
-  <a href="https://github.com"><img src="https://img.shields.io/badge/Ecosystem-CloudPulse_SecOps-8B5CF6?style=for-the-badge&logo=shield&logoColor=white" alt="CloudPulse"></a>
+  <a href="https://github.com/mohammedarmaan936-sketch/ansible-linux-cis-hardening"><img src="https://img.shields.io/badge/Compliance_Gate-100%25_Passing-00F2FE?style=for-the-badge&logo=githubactions&logoColor=black" alt="CI Gate"></a>
+  <a href="https://github.com/mohammedarmaan936-sketch"><img src="https://img.shields.io/badge/Ecosystem-CloudPulse_SecOps-8B5CF6?style=for-the-badge&logo=shield&logoColor=white" alt="CloudPulse"></a>
 </p>
 
 ---
